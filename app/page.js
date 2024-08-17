@@ -12,19 +12,25 @@ export default function Home() {
     const file = event.target.files[0];
     if (file) {
       const formData = new FormData();
-      formData.append('file', file);
-
+      formData.append('lecturePdf', file); // Ensure key matches Express middleware
+  
       try {
-        const response = await fetch('./api/upload', {
+        const response = await fetch('http://localhost:4000/upload', {
           method: 'POST',
           body: formData,
         });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const filePath = data.filePath;
 
-        const data = await response.json();
-        const filePath = data.filePath;
-
-        // Redirect to the chat page, passing the filePath as a query parameter
-        router.push(`/chat?filePath=${encodeURIComponent(filePath)}`);
+          console.log('File uploaded:', filePath);
+  
+          // Redirect to the chat page, passing the filePath as a query parameter
+          router.push(`/chat?filePath=${encodeURIComponent(filePath)}`);
+        } else {
+          console.error('Upload failed:', response.statusText);
+        }
       } catch (error) {
         console.error('Error uploading the file:', error);
       }
@@ -32,6 +38,7 @@ export default function Home() {
       console.log('No file uploaded');
     }
   };
+  
 
   return (
     <div>
