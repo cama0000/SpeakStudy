@@ -1,95 +1,87 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { AppBar, Toolbar, Typography, Container, Box, Button, IconButton, Input } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 export default function Home() {
+  const router = useRouter();
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('./api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+        const filePath = data.filePath;
+
+        // Redirect to the chat page, passing the filePath as a query parameter
+        router.push(`/chat?filePath=${encodeURIComponent(filePath)}`);
+      } catch (error) {
+        console.error('Error uploading the file:', error);
+      }
+    } else {
+      console.log('No file uploaded');
+    }
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div>
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            StudyMate AI
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '80vh',
+            textAlign: 'center',
+            backgroundColor: '#f5f5f5',
+            borderRadius: 2,
+            padding: 4,
+          }}
+        >
+          <Typography variant="h4" component="h1" gutterBottom>
+            Upload Your Notes
+          </Typography>
+          <Typography variant="body1" color="textSecondary" gutterBottom>
+            StudyMate AI has your back for your upcoming exam.
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mt: 4,
+            }}
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+            <IconButton color="primary" aria-label="upload file" component="label">
+              <Input type="file" onChange={handleFileUpload} sx={{ display: 'none' }} />
+              <CloudUploadIcon sx={{ fontSize: 48 }} />
+            </IconButton>
+            <Button variant="contained" component="label" sx={{ mt: 2 }}>
+              Upload File
+              <Input type="file" onChange={handleFileUpload} sx={{ display: 'none' }} />
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </div>
   );
 }
