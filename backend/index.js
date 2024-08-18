@@ -34,7 +34,6 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, path.join(__dirname, '../uploads/')); // files will be saved in '/uploads'
     },
-
     
     //renames the file in a way like '<filname>-<current_timestamp>.pdf'
     filename: (req, file, cb) => {
@@ -55,7 +54,6 @@ app.post('/upload', upload.single('lecturePdf'), (req, res) => {
 //Route to handle Speech-to-Text conversion
 app.post('/speech-to-text', upload.single('audioFile'), (req, res) => {
     const audioFilePath = req.file.path; //path to the uploaded audio file
-
     const recognizeParams = {
         audio: fs.createReadStream(audioFilePath), //reads the audio file from the file system
         contentType: 'audio/mp3',

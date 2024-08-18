@@ -2,9 +2,11 @@
 // this is absar
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { AppBar, Toolbar, Typography, Container, Box, Paper, List, ListItem, ListItemText, IconButton } from '@mui/material';
+
 import MicIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
+import { AppBar, Toolbar, Typography, Container, Box, TextField, IconButton, Paper, List, ListItem, ListItemText, Input, CloudUploadIcon } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([]);
@@ -76,11 +78,6 @@ const ChatbotPage = () => {
     <div>
       {/* Navbar at the top */}
       <AppBar position="static" color="primary">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            StudyMate AI
-          </Typography>
-        </Toolbar>
       </AppBar>
 
       {/* Chat history in the middle */}
