@@ -45,54 +45,33 @@ export default function Home() {
   
 
   return (
-    <div>
-      <AppBar position="static" color="primary">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            StudyMate AI
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '80vh',
-            textAlign: 'center',
-            backgroundColor: '#f5f5f5',
-            borderRadius: 2,
-            padding: 4,
-          }}
-        >
-          <Typography variant="h4" component="h1" gutterBottom>
-            Upload Your Notes
-          </Typography>
-          <Typography variant="body1" color="textSecondary" gutterBottom>
-            StudyMate AI has your back for your upcoming exam.
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mt: 4,
-            }}
-          >
-            <IconButton color="primary" aria-label="upload file" component="label">
-              <Input type="file" onChange={handleFileUpload} sx={{ display: 'none' }} />
-              <CloudUploadIcon sx={{ fontSize: 48 }} />
-            </IconButton>
-            <Button variant="contained" component="label" sx={{ mt: 2 }}>
-              Upload File
-              <Input type="file" onChange={handleFileUpload} sx={{ display: 'none' }} />
-            </Button>
-          </Box>
-        </Box>
-      </Container>
+    <div style={{
+      backgroundImage: "url('/ai.png')",
+      height: "100vh",
+      backgroundSize: "cover",
+      backgroundRepeat: "no-repeat",
+      margin: "0px",
+      padding: "0px"
+    }}>
+      <Box style={{ float: 'right' }}>
+      <Button
+  color='warning'
+  size='large'
+  style={{ fontSize: '1.5rem', padding: '16px 32px' }} 
+>
+  Register
+  </Button>
+  <Button
+  color='warning'
+  size='large'
+  style={{ fontSize: '1.5rem', padding: '16px 32px' }} 
+>
+  Login
+  </Button>
+      </Box>
+      <h1 style={{ color: 'white', position: 'absolute', bottom: '370px', left: '200px', fontSize: '5rem' }}>
+    SpeakStudy
+  </h1>
     </div>
   );
 }
