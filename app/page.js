@@ -15,13 +15,14 @@ export default function Home() {
       formData.append('file', file);
 
       try {
-        const response = await fetch('./api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+        // const response = await fetch('./api/upload', {
+        //   method: 'POST',
+        //   body: formData,
+        // });
 
-        const data = await response.json();
-        const filePath = data.filePath;
+        // const data = await response.json();
+        // const filePath = data.filePath;
+        const filePath = './uploads/SpeakStudy.pptx';
 
         // Redirect to the chat page, passing the filePath as a query parameter
         router.push(`/chat?filePath=${encodeURIComponent(filePath)}`);

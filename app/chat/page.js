@@ -2,7 +2,7 @@
 // this is absar
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { AppBar, Toolbar, Typography, Container, Box, TextField, IconButton, Paper, List, ListItem, ListItemText } from '@mui/material';
+import { AppBar, Toolbar, Typography, Container, Box, TextField, IconButton, Paper, List, ListItem, ListItemText, Input, CloudUploadIcon } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
 const ChatbotPage = () => {
@@ -10,6 +10,31 @@ const ChatbotPage = () => {
   const [inputValue, setInputValue] = useState('');
   const searchParams = useSearchParams();
   const filePath = searchParams.get('filePath'); // Retrieve the file path from the query parameter
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // const response = await fetch('./api/upload', {
+        //   method: 'POST',
+        //   body: formData,
+        // });
+
+        // const data = await response.json();
+        // const filePath = data.filePath;
+
+        // Redirect to the chat page, passing the filePath as a query parameter
+        // router.push(`/chat?filePath=${encodeURIComponent(filePath)}`);
+      } catch (error) {
+        console.error('Error uploading the file:', error);
+      }
+    } else {
+      console.log('No file uploaded');
+    }
+  };
 
   const handleSendMessage = async () => {
     if (inputValue.trim()) {
@@ -73,6 +98,10 @@ const ChatbotPage = () => {
             ))}
           </List>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton color="primary" aria-label="upload file" component="label">
+              <Input type="file" onChange={handleFileUpload} sx={{ display: 'none' }} />
+              <CloudUploadIcon sx={{ fontSize: 48 }} />
+            </IconButton>
             <TextField
               variant="outlined"
               fullWidth

@@ -39,27 +39,27 @@
 
 
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export async function POST(req) {
-    const { filePath, question } = await req.json();
-    console.log("filePath and question: " + filePath + " " + question);
-    const apiKey = process.env.GEMINI_API_KEY;
-    const genAI = new GoogleGenerativeAI(apiKey);
+// export async function POST(req) {
+//     const { filePath, question } = await req.json();
+//     console.log("filePath and question: " + filePath + " " + question);
+//     const apiKey = process.env.GEMINI_API_KEY;
+//     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // const systemPrompt = `You are an educational assistant. Users will pass in their lectures and they will ask questions about it.
-    // You must provide a response to the user's question based on the lecture content.  
+//     // const systemPrompt = `You are an educational assistant. Users will pass in their lectures and they will ask questions about it.
+//     // You must provide a response to the user's question based on the lecture content.  
 
-    // CONTEXT: ${context}
+//     // CONTEXT: ${context}
 
-    // USER: ${userMessage}`;
+//     // USER: ${userMessage}`;
 
-    const model = genAI.getGenerativeModel({
-        model: "gemini-1.0-pro",
-    });
+//     const model = genAI.getGenerativeModel({
+//         model: "gemini-1.0-pro",
+//     });
 
-    const chat = model.startChat()
-    let result = await model.generateContent(question)
+//     const chat = model.startChat()
+//     let result = await model.generateContent(question)
 
-    return new Response(JSON.stringify({ reply: result.response.text() }), { status: 200 });
-}
+//     return new Response(JSON.stringify({ reply: result.response.text() }), { status: 200 });
+// }
