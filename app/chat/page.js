@@ -115,7 +115,7 @@ const ChatbotPageContent = () => {
       <AppBar position="static" color="primary">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            StudyMate AI
+            SpeakStudy
           </Typography>
         </Toolbar>
       </AppBar>

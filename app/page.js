@@ -52,7 +52,7 @@ export default function Home() {
       <AppBar position="static" color="primary">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            StudyMate AI
+            SpeakStudy
           </Typography>
         </Toolbar>
       </AppBar>
@@ -74,7 +74,7 @@ export default function Home() {
             Upload Your Notes
           </Typography>
           <Typography variant="body1" color="textSecondary" gutterBottom>
-            StudyMate AI has your back for your upcoming exam.
+            SpeakStudy has your back for your upcoming exam.
           </Typography>
           <Box
             sx={{
