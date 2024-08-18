@@ -37,7 +37,7 @@ const ChatbotPageContent = () => {
               formData.append('audioFile', audioBlob, 'audio.webm');
 
               try {
-                const response = await fetch('http://localhost:4000/speech-to-text', {
+                const response = await fetch(`http://${process.env.NEXT_PUBLIC_HOSTNAME}:4000/speech-to-text`, {
                   method: 'POST',
                   body: formData,
                 });
@@ -52,7 +52,7 @@ const ChatbotPageContent = () => {
 
                 // call gemini w/ transcription
                 try {
-                  const response = await fetch('http://localhost:4000/gemini/chat', {
+                  const response = await fetch(`http://${process.env.NEXT_PUBLIC_HOSTNAME}:4000/gemini/chat`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',

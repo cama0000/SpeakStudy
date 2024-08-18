@@ -20,9 +20,11 @@ export default function Home() {
 
       const formData = new FormData();
       formData.append('lecturePdf', file); // ENSUREEEEEE key matches Express middleware
-  
+
+      console.log("HOSTNAME", process.env.HOSTNAME);
+
       try {
-        const response = await fetch('http://localhost:4000/upload', {
+        const response = await fetch(`http://${process.env.NEXT_PUBLIC_HOSTNAME}:4000/upload`, {
           method: 'POST',
           body: formData,
         });

@@ -50,7 +50,7 @@ app.post('/gemini/chat', async (req, res) => {
     const result = await model.generateContent(request);
     const aiReply = result.response.text();
 
-    console.log("RESULT: " + aiReply);
+    // console.log("RESULT: " + aiReply);
 
     res.status(200).json({ reply: aiReply });
 
@@ -68,7 +68,7 @@ const { error } = require('console');
 
 app.use(express.json()); //allows the app to parse incoming json requests
 
-require('dotenv').config({ path: '../.env.local' });
+// require('dotenv').config({ path: '../.env.local' });
 
 //Watson Speech-to-Text client -> Loads API KEY and url
 const speechToText = new SpeechToTextV1({
