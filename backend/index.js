@@ -56,6 +56,26 @@ app.post('/gemini/chat', async (req, res) => {
   }
 });
 
+const multer = require('multer');
+const path = require('path'); 
+const fs = require('fs'); //File System module for interacting with uploaded files
+
+const { IamAuthenticator } = require('ibm-watson/auth');
+const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1'); //Speech-to-Text service
+const { error } = require('console');
+
+app.use(express.json()); //allows the app to parse incoming json requests
+
+require('dotenv').config({ path: '../.env.local' });
+
+//Watson Speech-to-Text client -> Loads API KEY and url
+const speechToText = new SpeechToTextV1({
+    authenticator: new IamAuthenticator({
+        apikey: process.env.S2T_API_KEY,
+    }),
+    serviceUrl: process.env.S2T_URL,
+})
+
 app.get('/', (req, res) => {
   res.send('StudyTalk Backend is Running!');
 });
@@ -71,9 +91,9 @@ const storage = multer.diskStorage({
 
     //specifies where the file will be stored -> /uploads
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // files will be saved in '/uploads'
+        cb(null, path.join(__dirname, '../uploads/')); // files will be saved in '/uploads'
     },
-
+    
     //renames the file in a way like '<filname>-<current_timestamp>.pdf'
     filename: (req, file, cb) => {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));

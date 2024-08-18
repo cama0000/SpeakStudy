@@ -1,81 +1,91 @@
 'use client';
-// this is absar
+
+//Chatbot page
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { AppBar, Toolbar, Typography, Container, Box, TextField, IconButton, Paper, List, ListItem, ListItemText, Input, CloudUploadIcon } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
+import { AppBar, Toolbar, Typography, Container, Box, Paper, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import MicIcon from '@mui/icons-material/Mic';
+import StopIcon from '@mui/icons-material/Stop';
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
   const searchParams = useSearchParams();
   const filePath = searchParams.get('filePath'); // Retrieve the file path from the query parameter
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        // const response = await fetch('./api/upload', {
-        //   method: 'POST',
-        //   body: formData,
-        // });
-
-        // const data = await response.json();
-        // const filePath = data.filePath;
-
-        // Redirect to the chat page, passing the filePath as a query parameter
-        // router.push(`/chat?filePath=${encodeURIComponent(filePath)}`);
-      } catch (error) {
-        console.error('Error uploading the file:', error);
-      }
-    } else {
-      console.log('No file uploaded');
+  useEffect(() => {
+    if (isRecording && !mediaRecorder) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          const recorder = new MediaRecorder(stream, { mimeType: 'audio/wav' }); // Record as WAV
+          recorder.ondataavailable = event => {
+            setAudioChunks(prev => [...prev, event.data]);
+          };
+          recorder.start();
+          setMediaRecorder(recorder);
+        })
+        .catch(error => console.error('Error accessing the microphone:', error));
     }
+
+    if (!isRecording && mediaRecorder) {
+      mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
+
+    return () => {
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [isRecording, mediaRecorder]);
+
+  const handleStartRecording = () => {
+    setIsRecording(true);
   };
 
-  const handleSendMessage = async () => {
-    if (inputValue.trim()) {
-      setMessages([...messages, { text: inputValue, sender: 'user' }]);
-      const userMessage = inputValue;
-      setInputValue('');
+  const handleStopRecording = async () => {
+    setIsRecording(false);
+
+    if (audioChunks.length > 0) {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/wav' }); // Use WAV format
+      setAudioChunks([]);
+
+      const formData = new FormData();
+      formData.append('audioFile', audioBlob, 'audio.wav'); // Ensure it's a WAV file
 
       try {
         const response = await fetch('http://localhost:4000/gemini/chat', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ filePath, question: userMessage }),
+          body: formData,
         });
         const data = await response.json();
-        setMessages((prevMessages) => [...prevMessages, { text: data.reply, sender: 'bot' }]);
+        const transcription = data.transcription || 'No transcription available.';
+
+        setMessages((prevMessages) => [...prevMessages, { text: transcription, sender: 'user' }]);
       } catch (error) {
-        console.error('Error communicating with the chatbot:', error);
-        setMessages((prevMessages) => [...prevMessages, { text: 'Error communicating with the chatbot.', sender: 'bot' }]);
+        console.error('Error sending audio to server:', error);
+        setMessages((prevMessages) => [...prevMessages, { text: 'Error processing speech to text.', sender: 'bot' }]);
       }
-    }
-  };
-
-  const handleInputChange = (event) => {
-    setInputValue(event.target.value);
-  };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      handleSendMessage();
     }
   };
 
   return (
     <div>
       <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            StudyMate AI
+          </Typography>
+        </Toolbar>
       </AppBar>
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Paper sx={{ p: 2, backgroundColor: '#f9f9f9', borderRadius: 2 }}>
-          <List sx={{ maxHeight: '60vh', overflow: 'auto', mb: 2 }}>
+
+      <Container maxWidth="md" sx={{ mt: 4, mb: 10 }}>
+        <Paper sx={{ p: 2, backgroundColor: '#f9f9f9', borderRadius: 2, height: '60vh', overflowY: 'auto' }}>
+          <List>
             {messages.map((message, index) => (
               <ListItem key={index} sx={{ justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start' }}>
                 <Box
@@ -92,21 +102,18 @@ const ChatbotPage = () => {
               </ListItem>
             ))}
           </List>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <TextField
-              variant="outlined"
-              fullWidth
-              placeholder="Type your question..."
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-            />
-            <IconButton color="primary" onClick={handleSendMessage} sx={{ ml: 1 }}>
-              <SendIcon />
-            </IconButton>
-          </Box>
         </Paper>
       </Container>
+
+      <Box sx={{ position: 'fixed', bottom: 20, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <IconButton
+          color={isRecording ? "secondary" : "primary"}
+          onClick={isRecording ? handleStopRecording : handleStartRecording}
+          sx={{ width: 80, height: 80, backgroundColor: isRecording ? '#f44336' : '#1976d2', color: '#fff', borderRadius: '50%' }}
+        >
+          {isRecording ? <StopIcon sx={{ fontSize: 40 }} /> : <MicIcon sx={{ fontSize: 40 }} />}
+        </IconButton>
+      </Box>
     </div>
   );
 };
