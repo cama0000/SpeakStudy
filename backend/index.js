@@ -73,7 +73,6 @@ app.post('/speech-to-text', upload.single('audioFile'), (req, res) => {
         console.error('Error during speech-to-text:', err);
         res.status(500).json({error: 'Failed to convert speech to text'});
     });
-
 });
 
 app.listen(PORT, () => {
