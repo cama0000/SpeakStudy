@@ -93,10 +93,6 @@ const ChatbotPage = () => {
             ))}
           </List>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* <IconButton color="primary" aria-label="upload file" component="label"> */}
-            {/* {/* <Input type="file" onChange={handleFileUpload} sx={{ display: 'none' }} /> */}
-            {/* <CloudUploadIcon sx={{ fontSize: 48 }} /> */}
-            {/* </IconButton> */}
             <TextField
               variant="outlined"
               fullWidth
