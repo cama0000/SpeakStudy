@@ -21,10 +21,30 @@ export default function Home() {
       const formData = new FormData();
       formData.append('lecturePdf', file); // ENSUREEEEEE key matches Express middleware
 
-      console.log("HOSTNAME", process.env.NEXT_PUBLIC_HOSTNAME);
+      console.log("HOSTNAME", process.env.NEXT_PUBLIC_NODE_ENV);
+
+      // const uploadUrl = process.env.NODE_ENV === 'development'
+      // ? `${process.env.NEXT_PUBLIC_HOSTNAME}:4000/upload`
+      // : '/upload'; // Relative path in production
+
+      let uploadUrl = '';
+
+      if (process.env.NEXT_PUBLIC_NODE_ENV === 'development') {
+        uploadUrl = `${process.env.NEXT_PUBLIC_HOSTNAME}:4000/upload`;
+      }
+      else{
+        uploadUrl = '/upload';
+      }
+
+      console.log("UPLOAD URL", uploadUrl);
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_HOSTNAME}:4000/upload`, {
+        // const response = await fetch(`${process.env.NEXT_PUBLIC_HOSTNAME}:4000/upload`, {
+        //   method: 'POST',
+        //   body: formData,
+        // });
+
+        const response = await fetch(uploadUrl, {
           method: 'POST',
           body: formData,
         });
