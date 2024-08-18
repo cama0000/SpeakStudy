@@ -10,7 +10,12 @@ export default function Home() {
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
-    if (file) {
+    if(file){
+      if(file.type !== 'application/pdf'){
+        alert('Please upload a PDF file.');
+        return;
+      }
+
       const formData = new FormData();
       formData.append('lecturePdf', file); // ENSUREEEEEE key matches Express middleware
   
