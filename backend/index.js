@@ -71,6 +71,7 @@ app.post('/text-to-speech',async (req,res)=>{
             throw new Error('Failed to create task');
         }
 
+
         // the taskID
         const taskId = creationResponse.data.SynthesisTask.TaskId;
 
