@@ -20,23 +20,84 @@ const ChatbotPage = () => {
     if (isRecording && !mediaRecorder) {
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
-          const recorder = new MediaRecorder(stream, { mimeType: 'audio/wav' }); // Record as WAV
+          const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+          
+          // Initialize audioChunks when recording starts
+          let localAudioChunks = [];
+
           recorder.ondataavailable = event => {
-            setAudioChunks(prev => [...prev, event.data]);
+            console.log('Data available:', event.data);
+            localAudioChunks.push(event.data);
           };
+
+          recorder.onstop = async () => {
+            console.log("Recording stopped, processing data...");
+            if (localAudioChunks.length > 0) {
+              const audioBlob = new Blob(localAudioChunks, { type: 'audio/webm' });
+
+              const formData = new FormData();
+              formData.append('audioFile', audioBlob, 'audio.webm');
+
+              try {
+                const response = await fetch('http://localhost:4000/speech-to-text', {
+                  method: 'POST',
+                  body: formData,
+                });
+                const data = await response.json();
+                const transcription = data.transcription || 'No transcription available.';
+
+                console.log('Transcription:', transcription);
+
+                setMessages((prevMessages) => [...prevMessages, { text: transcription, sender: 'user' }]);
+
+
+
+                // call gemini w/ transcription
+                try {
+                  const response = await fetch('http://localhost:4000/gemini/chat', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ filePath, question: transcription }),
+                  });
+                  const data = await response.json();
+                  setMessages((prevMessages) => [...prevMessages, { text: data.reply, sender: 'bot' }]);
+                } catch (error) {
+                  console.error('Error communicating with the chatbot:', error);
+                  setMessages((prevMessages) => [...prevMessages, { text: 'Error communicating with the chatbot.', sender: 'bot' }]);
+                }
+
+
+
+
+
+              } catch (error) {
+                console.error('Error sending audio to server:', error);
+                setMessages((prevMessages) => [...prevMessages, { text: 'Error processing speech to text.', sender: 'bot' }]);
+              }
+            } else {
+              console.log("No audio data to process.");
+            }
+          };
+
           recorder.start();
+          setAudioChunks(localAudioChunks);
           setMediaRecorder(recorder);
         })
         .catch(error => console.error('Error accessing the microphone:', error));
     }
 
     if (!isRecording && mediaRecorder) {
+      console.log("Stopping recording...");
       mediaRecorder.stop();
       mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      setMediaRecorder(null);
     }
 
     return () => {
       if (mediaRecorder) {
+        console.log("Cleaning up recorder...");
         mediaRecorder.stop();
         mediaRecorder.stream.getTracks().forEach(track => track.stop());
       }
@@ -47,30 +108,8 @@ const ChatbotPage = () => {
     setIsRecording(true);
   };
 
-  const handleStopRecording = async () => {
+  const handleStopRecording = () => {
     setIsRecording(false);
-
-    if (audioChunks.length > 0) {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/wav' }); // Use WAV format
-      setAudioChunks([]);
-
-      const formData = new FormData();
-      formData.append('audioFile', audioBlob, 'audio.wav'); // Ensure it's a WAV file
-
-      try {
-        const response = await fetch('http://localhost:4000/gemini/chat', {
-          method: 'POST',
-          body: formData,
-        });
-        const data = await response.json();
-        const transcription = data.transcription || 'No transcription available.';
-
-        setMessages((prevMessages) => [...prevMessages, { text: transcription, sender: 'user' }]);
-      } catch (error) {
-        console.error('Error sending audio to server:', error);
-        setMessages((prevMessages) => [...prevMessages, { text: 'Error processing speech to text.', sender: 'bot' }]);
-      }
-    }
   };
 
   return (

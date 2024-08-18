@@ -23,16 +23,20 @@ app.post('/gemini/chat', async (req, res) => {
       relativeFilePath = filePath.replace(/^uploads[\\/]/, '');
     }
 
-    const absoluteFilePath = path.join(__dirname, 'uploads', relativeFilePath);
+    // const absoluteFilePath = path.join(__dirname, 'uploads', relativeFilePath);
 
-    const dataBuffer = fs.readFileSync(absoluteFilePath);
+    console.log("FILE PATH: " + relativeFilePath);
+
+
+
+    const dataBuffer = fs.readFileSync(relativeFilePath);
 
     const pdfData = await pdf(dataBuffer);
     const context = pdfData.text;
 
     const request = `
-      You are an educational assistant. Users will pass in their lectures and they will ask questions about it.
-      You must provide a response to the user's question based on the lecture content.
+      You are a friendly educational assistant. Users will pass in their lectures and they will ask questions about it.
+      You must provide a response to the user's question based on the lecture content. Go into a bit of detail.
 
       CONTEXT: ${context}
 
@@ -57,8 +61,6 @@ app.post('/gemini/chat', async (req, res) => {
 });
 
 const multer = require('multer');
-const path = require('path'); 
-const fs = require('fs'); //File System module for interacting with uploaded files
 
 const { IamAuthenticator } = require('ibm-watson/auth');
 const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1'); //Speech-to-Text service
@@ -84,8 +86,6 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-const multer = require('multer');
-
 //storage for the file uploads
 const storage = multer.diskStorage({
 
@@ -102,6 +102,30 @@ const storage = multer.diskStorage({
 
 // Initialize multer with defined storage settings
 const upload = multer({ storage: storage});
+
+//Route to handle Speech-to-Text conversion
+app.post('/speech-to-text', upload.single('audioFile'), (req, res) => {
+  const audioFilePath = req.file.path; //path to the uploaded audio file
+  const recognizeParams = {
+      audio: fs.createReadStream(audioFilePath), //reads the audio file from the file system
+      contentType: 'audio/webm',
+  };
+
+  //transcribe the audio -> Watson Speech-to-Text API
+  speechToText.recognize(recognizeParams).then(SpeechRecognitionResult => {
+      //Extract and join the transcription results into a single string
+      //get the transcript from eahc result
+      //join all transcripts with a newline
+      const transcription = SpeechRecognitionResult.result.results.map(result => result.alternatives[0].transcript).join('\n');
+
+      console.log("INSIDE SERVER")
+
+      res.json({transcription: transcription}); //sends the transcription back as a json file
+  }).catch(err => {
+      console.error('Error during speech-to-text:', err);
+      res.status(500).json({error: 'Failed to convert speech to text'});
+  });
+});
 
 app.post('/upload', upload.single('lecturePdf'), (req, res) => {
 
