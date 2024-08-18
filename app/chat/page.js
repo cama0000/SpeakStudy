@@ -72,11 +72,6 @@ const ChatbotPage = () => {
   return (
     <div>
       <AppBar position="static" color="primary">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            StudyMate AI
-          </Typography>
-        </Toolbar>
       </AppBar>
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Paper sx={{ p: 2, backgroundColor: '#f9f9f9', borderRadius: 2 }}>
@@ -98,10 +93,10 @@ const ChatbotPage = () => {
             ))}
           </List>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton color="primary" aria-label="upload file" component="label">
-              <Input type="file" onChange={handleFileUpload} sx={{ display: 'none' }} />
-              <CloudUploadIcon sx={{ fontSize: 48 }} />
-            </IconButton>
+            {/* <IconButton color="primary" aria-label="upload file" component="label"> */}
+            {/* {/* <Input type="file" onChange={handleFileUpload} sx={{ display: 'none' }} /> */}
+            {/* <CloudUploadIcon sx={{ fontSize: 48 }} /> */}
+            {/* </IconButton> */}
             <TextField
               variant="outlined"
               fullWidth
