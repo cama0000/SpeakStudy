@@ -12,7 +12,7 @@ export default function Home() {
     const file = event.target.files[0];
     if (file) {
       const formData = new FormData();
-      formData.append('lecturePdf', file); // Ensure key matches Express middleware
+      formData.append('lecturePdf', file); // ENSUREEEEEE key matches Express middleware
   
       try {
         const response = await fetch('http://localhost:4000/upload', {
@@ -26,7 +26,6 @@ export default function Home() {
 
           console.log('File uploaded:', filePath);
   
-          // Redirect to the chat page, passing the filePath as a query parameter
           router.push(`/chat?filePath=${encodeURIComponent(filePath)}`);
         } else {
           console.error('Upload failed:', response.statusText);

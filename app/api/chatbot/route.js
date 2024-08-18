@@ -1,65 +1,126 @@
+// import { GoogleGenerativeAI } from "@google/generative-ai";
+// import fetch from 'node-fetch';  // Use 'node-fetch' to handle file fetching
+// import pdf from 'pdf-parse';  // Use 'pdf-parse' for extracting text from PDF
+
 // export async function POST(req) {
-//   const { filePath, question } = await req.json();
+//     const { filePath, question } = await req.json();
+//     const apiKey = process.env.GEMINI_API_KEY;
+//     const genAI = new GoogleGenerativeAI(apiKey);
 
-//   try {
-//     // Step 1: Request the Flask server to create the index
-//     const indexResponse = await fetch('http://127.0.0.1:5000/index', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ filePath }),
+//     const model = genAI.getGenerativeModel({
+//         model: "gemini-1.0-pro",
 //     });
 
-//     if (!indexResponse.ok) {
-//       throw new Error('Failed to create index');
-//     }
+//     const formattedFilePath = filePath.replace(/\\/g, '/');
+//     const finalFilePath = `http://localhost:4000/` + `${formattedFilePath}`;
 
-//     const indexData = await indexResponse.json();
+//     console.log("FILEPATH: " + finalFilePath);
 
-//     // Step 2: Request the Flask server to generate a response based on the index and question
-//     const response = await fetch('http://127.0.0.1:5000/respond', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ index: indexData.index, question }),
-//     });
+//     const response = await fetch(finalFilePath);
+//         if (!response.ok) {
+//             throw new Error(`Failed to fetch PDF: ${response.statusText}`);
+//         }
 
-//     if (!response.ok) {
-//       throw new Error('Failed to generate response');
-//     }
+//         // Convert the PDF to a buffer
+//         const buffer = await response.buffer();
 
-//     const data = await response.json();
+//         // Extract text from the PDF buffer
+//         const data = await pdf(buffer);
+//         const context = data.text;
 
-//     // Step 3: Return the response to the frontend
-//     return new Response(JSON.stringify({ reply: data.response }), { status: 200 });
-//   } catch (error) {
-//     console.error('Error processing the RAG response:', error);
-//     return new Response(JSON.stringify({ error: 'Failed to process the request.' }), { status: 500 });
-//   }
+//     const textPart = {
+//         text: `
+//         You are an educational assistant. Users will pass in their lectures and they will ask questions about it.
+//      You must provide a response to the user's question based on the lecture content.
+
+//      CONTEXT: ${context}
+     
+//      USER: ${question}`,
+//       };
+    
+//       const request = {
+//         contents: [{role: 'user', parts: [filePart, textPart]}],
+//       };
+    
+//     const result = await model.generateContent(request);
+
+//     console.log("RESULT: " + result.response.text());
+
+//     return new Response(JSON.stringify({ reply: result.response.text() }), { status: 200 });
+
+//     // return new Response(JSON.stringify({ reply: "Hello" }), { status: 200 });
 // }
 
 
 
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+// import fetch from 'node-fetch';
+import pdf from "pdf-parse-debugging-disabled";
+import fs from 'fs';
 
 export async function POST(req) {
     const { filePath, question } = await req.json();
-    console.log("filePath and question: " + filePath + " " + question);
     const apiKey = process.env.GEMINI_API_KEY;
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // const systemPrompt = `You are an educational assistant. Users will pass in their lectures and they will ask questions about it.
-    // You must provide a response to the user's question based on the lecture content.  
+    // Format file path for use in URL
+    const formattedFilePath = filePath.replace(/\\/g, '/');
+    const finalFilePath = `http://localhost:4000/${formattedFilePath}`;
 
-    // CONTEXT: ${context}
+    try {
+        // Fetch the PDF file from the server
+        // const response = await fetch(finalFilePath);
 
-    // USER: ${userMessage}`;
+        let dataBuffer = fs.readFileSync(finalFilePath);
+ 
+        pdf(dataBuffer).then(function(data) {
+            console.log(data.text); 
+        });
 
-    const model = genAI.getGenerativeModel({
-        model: "gemini-1.0-pro",
-    });
+        return new Response(JSON.stringify({ reply: "Hello" }), { status: 200 });
 
-    const chat = model.startChat()
-    let result = await model.generateContent(question)
+        // if (!response.ok) {
+        //     throw new Error(`Failed to fetch PDF: ${response.statusText}`);
+        // }
 
-    return new Response(JSON.stringify({ reply: result.response.text() }), { status: 200 });
+        // // Convert the PDF to a buffer
+        // const buffer = await response.buffer();
+
+        // Extract text from the PDF buffer
+        const data = await pdf(buffer);
+        const context = data.text;
+
+
+
+        // Construct text part for request
+        const textPart = {
+            text: `
+            You are an educational assistant. Users will pass in their lectures and they will ask questions about it.
+         You must provide a response to the user's question based on the lecture content.
+
+         CONTEXT: ${context}
+         
+         USER: ${question}`,
+        };
+
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.0-pro",
+        });
+
+        const request = {
+            contents: [{role: 'user', parts: [textPart]}],
+        };
+
+        const result = await model.generateContent(request);
+        const aiReply = result.response.text();
+
+        console.log("RESULT: " + aiReply);
+
+        return new Response(JSON.stringify({ reply: aiReply }), { status: 200 });
+
+    } catch (error) {
+        console.error('Error processing the file:', error);
+        return new Response(JSON.stringify({ error: 'Error processing the file' }), { status: 500 });
+    }
 }
