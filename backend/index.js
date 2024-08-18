@@ -17,20 +17,30 @@ require('dotenv').config({ path: '../.env.local' });
 
 
 app.get('/', (req, res) => {
-    res.send('StudyTalk Backend is Running!');
+  res.send('StudyTalk Backend is Running!');
 });
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+const multer = require('multer');
+const path = require('path');
 
 //storage for the file uploads
 const storage = multer.diskStorage({
 
     //specifies where the file will be stored -> /uploads
     destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // files will be saved in '/uploads'
         cb(null, path.join(__dirname, '../uploads/')); // files will be saved in '/uploads'
     },
 
 
     //renames the file in a way like '<filname>-<current_timestamp>.pdf'
     filename: (req, file, cb) => {
+        cb(null, file.fieldname + '-' + Date.now() + path.extreme(file.originalname));
+    }
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     },
 });
@@ -80,6 +90,8 @@ app.post('/text-to-speech',async (req,res)=>{
         if (statusResponse.status !== 200) {
             throw new Error('Failed to retrieve task status');
         }
+    res.send(`File uploaded: ${req.file.path}`);
+})
 
         const responseData = statusResponse.data;
 
