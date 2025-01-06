@@ -21,7 +21,6 @@ export default function Home() {
       const formData = new FormData();
       formData.append('lecturePdf', file); // ENSUREEEEEE key matches Express middleware
 
-
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_HOSTNAME}:4000/upload`, {
           method: 'POST',
@@ -30,11 +29,15 @@ export default function Home() {
         
         if (response.ok) {
           const data = await response.json();
-          const filePath = data.filePath;
+          const lectureText = data.lectureText;
 
-          console.log('File uploaded:', filePath);
+          // console.log('Lecture text:', lectureText);
+
+          localStorage.setItem('lectureText', lectureText);
   
-          router.push(`/chat?filePath=${encodeURIComponent(filePath)}`);
+          router.push(`/chat`);
+
+
         } else {
           console.error('Upload failed:', response.statusText);
         }

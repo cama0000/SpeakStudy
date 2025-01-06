@@ -12,7 +12,7 @@ const ChatbotPageContent = () => {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
   const searchParams = useSearchParams();
-  const filePath = searchParams.get('filePath'); // Retrieve the file path from the query parameter
+  const lectureText = localStorage.getItem('lectureText');
 
   useEffect(() => {
     if (isRecording && !mediaRecorder) {
@@ -57,7 +57,7 @@ const ChatbotPageContent = () => {
                     headers: {
                       'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ filePath, question: transcription }),
+                    body: JSON.stringify({ lectureText, question: transcription }),
                   });
                   const data = await response.json();
                   setMessages((prevMessages) => [...prevMessages, { text: data.reply, sender: 'bot' }]);
